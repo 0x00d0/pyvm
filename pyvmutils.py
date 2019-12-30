@@ -298,21 +298,32 @@ def get_all_vms(content):
 
 def clone_vm(content, template, vm_name, datacenter_name, vm_folder, datastore_name, resource_pool, power_on, numcpu,
              mensize, ipaddr, subnetmask, gateway, dnsdomain, newvmhostname, dnsServerList):
-    '''
-    从template/VM 克隆一个虚拟机，
-    :param content:
-    :param template:
-    :param vm_name:
-    :param service_instance:
-    :param datacenter_name:
-    :param vm_folder:
-    :param datastore_name:
-    :param cluster_name:
-    :param resource_pool:
-    :param power_on:
-    :param datastorecluster_name:
+        """
+    克隆虚拟机
+    clone_vm(content=content, template='CentOS7-templates', vm_name='clone_vm_test3',
+             datacenter_name='DataCenter', vm_folder='', datastore_name='Datastore',
+             resource_pool='Resources', power_on=False, numcpu=2, mensize=4096, ipaddr="192.168.1.16",
+             subnetmask="255.255.255.0", gateway="192.168.1.1", dnsdomain="localhost", newvmhostname="clonevmtest",
+             dnsServerList=['223.5.5.5', '114.114.114.114'])
+
+    :param content: content = service_instance.RetrieveContent()
+    :param template: 模板虚拟机名称， 示例： CentOS7-templates
+    :param vm_name: 新克隆虚拟机名称， 示例：clone_vm_test3
+    :param datacenter_name: 数据中心名称
+    :param vm_folder: 虚拟机存储文件夹， 为空即可
+    :param datastore_name: 数据存储： Datastore
+    :param resource_pool: 资源池: Resources
+    :param power_on:  电源状态： True/False
+    :param numcpu:  CPU核心数： int
+    :param mensize: 内存大小： int
+    :param ipaddr:  虚拟机IP
+    :param subnetmask:  子网掩码
+    :param gateway: 网关
+    :param dnsdomain: dnsdomain
+    :param newvmhostname: hostname
+    :param dnsServerList: dns server : list
     :return:
-    '''
+    """
     # 获取指定的datacenter，如果没有就第一个
     datacenter = get_obj(content, [vim.Datacenter], datacenter_name)
     if vm_folder:
