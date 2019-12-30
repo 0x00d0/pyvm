@@ -249,13 +249,10 @@ def get_host_resource_pool(content, hostname):
     :return:
     """
     host = get_obj(content, [vim.ComputeResource], hostname)
-    pool_list = []
     if host:
-        for pool in host.resourcePool.resourcePool:
-            pool_list.append({"pool_name": pool.name, "pool_id": pool._moId})
-        return pool_list
+        return {"pool_name": host.resourcePool.name, "pool_id": host.resourcePool._moId}
     else:
-        return
+        return 
 
 
 def get_all_vmfolder(content):
