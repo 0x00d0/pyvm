@@ -367,7 +367,7 @@ if __name__ == '__main__':
     service_instance = connect_vc(host="", user="", pwd="")
     content = service_instance.RetrieveContent()
     clone_vm(content=content, template='CentOS7-templates', vm_name='clone_vm_test3',
-             datacenter_name='DataCenter', vm_folder='', datastore_name='Datastore 2',
+             datacenter_name='DataCenter', vm_folder='', datastore_name='Datastore',
              resource_pool='Resources', power_on=False, numcpu=2, mensize=4096, ipaddr="192.168.1.16",
              subnetmask="255.255.255.0", gateway="192.168.1.1", dnsdomain="localhost", newvmhostname="clonevmtest",
              dnsServerList=['223.5.5.5', '114.114.114.114'])
