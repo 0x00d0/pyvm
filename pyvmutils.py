@@ -296,7 +296,7 @@ def get_all_vms(content):
     return vms_list
 
 
-def clone_vm(content, template, vm_name, datacenter_name, vm_folder, datastore_name, resource_pool, power_on, numcpu,
+def clone_vm(content, template, vm_name, datacenter_name, vm_folder, datastore_name, cluster_name,resource_pool, power_on, numcpu,
              mensize, ipaddr, subnetmask, gateway, dnsdomain, newvmhostname, dnsServerList):
         """
     克隆虚拟机
@@ -335,8 +335,12 @@ def clone_vm(content, template, vm_name, datacenter_name, vm_folder, datastore_n
         datastore = get_obj(content, [vim.Datastore], datastore_name)
     else:
         datastore = get_obj(content, [vim.Datastore], template.datastore[0].info.name)
+        
+    cluster = get_obj(content, [vim.ClusterComputeResource], cluster_name)
     if resource_pool:
         resource_pool = get_obj(content, [vim.ResourcePool], resource_pool)
+    else:
+        resource_pool = cluster.resourcePool
 
     print('设置%s CPU、内存' % (vm_name))
     specconfig = vim.vm.ConfigSpec(numCPUs=int(numcpu), memoryMB=int(mensize))
