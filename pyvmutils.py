@@ -296,7 +296,8 @@ def get_all_vms(content):
     return vms_list
 
 
-def clone_vm(content,template,vm_name,datacenter_name,vm_folder,datastore_name,resource_pool,power_on,data_disk_size,cpu_core,mensize):
+def clone_vm(content, template, vm_name, datacenter_name, vm_folder, datastore_name, resource_pool, power_on, numcpu,
+             mensize, ipaddr, subnetmask, gateway, dnsdomain, newvmhostname, dnsServerList):
     '''
     从template/VM 克隆一个虚拟机，
     :param content:
@@ -318,7 +319,7 @@ def clone_vm(content,template,vm_name,datacenter_name,vm_folder,datastore_name,r
         destfolder = get_obj(content, [vim.Folder], vm_folder)
     else:
         destfolder = datacenter.vmFolder
-    template = get_obj(content, [vim.VirtualMachine],template)
+    template = get_obj(content, [vim.VirtualMachine], template)
     if datastore_name:
         datastore = get_obj(content, [vim.Datastore], datastore_name)
     else:
@@ -326,32 +327,50 @@ def clone_vm(content,template,vm_name,datacenter_name,vm_folder,datastore_name,r
     if resource_pool:
         resource_pool = get_obj(content, [vim.ResourcePool], resource_pool)
 
+    print('设置%s CPU、内存' % (vm_name))
+    specconfig = vim.vm.ConfigSpec(numCPUs=int(numcpu), memoryMB=int(mensize))
+    print("设置Network ")
+    adaptermap = vim.vm.customization.AdapterMapping()
+    # HDCP
+    # adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.DhcpIpGenerator(), dnsDomain='localhost')
+    adaptermap.adapter = vim.vm.customization.IPSettings(ip=vim.vm.customization.FixedIp(ipAddress=ipaddr),
+                                                         subnetMask=subnetmask, gateway=gateway)
+    print("设置DNS")
+    # 动态获取DNS
+    #globalip = vim.vm.customization.GlobalIPSettings()
+    # 静态设置
+    globalip = vim.vm.customization.GlobalIPSettings(dnsServerList=dnsServerList)
+    print("设置 hostname")
+    ident = vim.vm.customization.LinuxPrep(domain=dnsdomain,
+                                           hostName=vim.vm.customization.FixedName(name=newvmhostname))
+
+    customspec = vim.vm.customization.Specification(nicSettingMap=[adaptermap], globalIPSettings=globalip,
+                                                    identity=ident)
     # config = get_vmconfig(content,1,1024,template,40)
-    disk_size = int(data_disk_size) * 1024 * 1024
     relospec = vim.vm.RelocateSpec()
     relospec.datastore = datastore
     relospec.pool = resource_pool
-    clonespec = vim.vm.CloneSpec()
-    clonespec.location = relospec
-    clonespec.powerOn = power_on
+    clonespec = vim.vm.CloneSpec(powerOn=power_on, template=False, location=relospec, customization=customspec, config=specconfig)
 
     print("cloning VM...")
     # print(template.parent)
     task = template.Clone(folder=destfolder, name=vm_name, spec=clonespec)
     wait_for_task(task)
-    print('设置%s CPU、内存' %(vm_name))
-    spec = vim.vm.ConfigSpec()
-    # spec.numCPUs = 1
-    # spec.memoryMB = 1024
-    # spec.deviceChange = 40
-    vm = get_obj(content, [vim.VirtualMachine], vm_name)
-    vmtask = vm.ReconfigVM_Task(spec=spec)
-    wait_for_task(vmtask)
+
+
+    # vm = get_obj(content, [vim.VirtualMachine], vm_name)
+    # vmtask = vm.ReconfigVM_Task(spec=spec)
+    # wait_for_task(vmtask)
 
 
 if __name__ == '__main__':
     service_instance = connect_vc(host="", user="", pwd="")
     content = service_instance.RetrieveContent()
-    clone_vm(content=content, template='CentOS7-templates', vm_name='clone_vm_test3', datacenter_name='DataCenter', vm_folder='', datastore_name='Datastore 2', resource_pool='Resources', power_on=False)
+    clone_vm(content=content, template='CentOS7-templates', vm_name='clone_vm_test3',
+             datacenter_name='DataCenter', vm_folder='', datastore_name='Datastore 2',
+             resource_pool='Resources', power_on=False, numcpu=2, mensize=4096, ipaddr="192.168.1.16",
+             subnetmask="255.255.255.0", gateway="192.168.1.1", dnsdomain="localhost", newvmhostname="clonevmtest",
+             dnsServerList=['223.5.5.5', '114.114.114.114'])
     Disconnect(service_instance)
+
 
