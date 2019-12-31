@@ -293,8 +293,8 @@ def get_all_vms(content):
     return vms_list
 
 
-def clone_vm(content, template, vm_name, datacenter_name, vm_folder, datastore_name, cluster_name,resource_pool, power_on, numcpu,
-             mensize, ipaddr, subnetmask, gateway, dnsdomain, newvmhostname, dnsServerList):
+def clone_vm(content, template, vm_name, datacenter_name, vm_folder, datastore_name, resource_pool, power_on, numcpu,
+             mensize, ipaddr, subnetmask, gateway, dnsdomain, newvmhostname, dnsServerList, cluster_name=None):
         """
     克隆虚拟机
     clone_vm(content=content, template='CentOS7-templates', vm_name='clone_vm_test3',
